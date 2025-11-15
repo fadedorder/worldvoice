@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.faded.worldvoice.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "worldvoice.refmap.json",
+  "mixins": [
+    "RaceSelectionMenuMixin",
+    "ResetScrollItemMixin",
+    "InternalSkillStorageMixin",
+    "EntitySkillCapabilityStorageMixin",
+    "RequestSkillCreationPacketMixin",
+    "RequestAwakeningPacketMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

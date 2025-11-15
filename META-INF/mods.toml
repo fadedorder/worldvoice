@@ -1,0 +1,47 @@
+modLoader="javafml"
+loaderVersion="[43,)"
+license="All rights reserved"
+[[mods]]
+modId="tensura"
+version="1.0.2.5"
+displayName="Tensura:Reincarnated"
+logoFile="logo.png"
+
+credits="Big thanks to MinhEragon, our admin and helper team, and everyone else who supported us <3" #optional
+
+authors="MinhEragon, MrProfessor, ItsJustArthur, Borniuus, Nieadni"
+
+description='''
+This is the third iteration of the Tensura mod or TTIGRAAS as it was previously known. We decided to remake the mod without Mcreator in order to make the mod even better than before. Now, the ManasMods team, consisting of MinhEragon, ItsJustArthur and Professor along with many asset makers and planners, present Tensura Reincarnated!
+'''
+
+[[dependencies.tensura]]
+    modId="forge"
+    mandatory=true
+    versionRange="[43,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.tensura]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.19.2,1.20)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.tensura]]
+    modId="terrablender"
+    mandatory=true
+    versionRange="[2.0,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.tensura]]
+    modId="geckolib3"
+    mandatory=true
+    versionRange="[3.1,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.tensura]]
+    modId="manascore"
+    mandatory=true
+    versionRange="[2.1.4.6,)"
+    ordering="NONE"
+    side="BOTH"
