@@ -355,3 +355,23 @@ This section is a running log for future maintainers and AI instances. Append ne
   - AI prompt integration and validation strategy.
 - Documented how dictionary schemas remain forward-compatible for future quest integration.
 
+#### Entry 2025-11-16 – Phase 1 Profiling Enhancements
+
+- Expanded `PlayerProfileSnapshot` with combat/resource stats (kills, boss kills, damage dealt/taken, blocks/items activity) plus derived per-hour metrics and profile tags.
+- Added helper methods for normalized play hours, rates, and descriptive tags for use across AI systems.
+- Updated Yggdrasil heuristic scoring and prompts to leverage normalized metrics and tags instead of raw playtime/distance, reducing bias toward AFK/no-life behavior.
+- Enhanced wish prompts with the same normalized data so AI adjudication reflects player playstyle, then validated via successful `./gradlew build`.
+
+#### Entry 2025-11-17 – Phase 2 Dictionary Scaffolding
+
+- Added `ItemDictionary` and `MobDictionary` classes with JSON5 parsing, fallback resources, and auto-description helpers that infer roles/tags from Forge registries.
+- Introduced config hooks (`yggdrasil.itemDictionaryPath` / `yggdrasil.mobDictionaryPath`) and default JSON stubs so instances can override per-modlist metadata.
+- Wired Yggdrasil service with lazy loaders & reload helpers for the new dictionaries, exposing accessors for upcoming registration commands.
+- Verified compilation with `./gradlew build`.
+
+#### Entry 2025-11-18 – Registry Commands & Wish Prompt Integration
+
+- Implemented `/worldvoice yggdrasil register skills|items|mobs|all`, scanning SkillAPI/Forge registries, auto-describing missing entries, and writing updated dictionaries to the configured JSON5 paths.
+- Added write/append capabilities to all dictionaries so command output persists immediately and reloads into the running service.
+- Extended wish prompts with `SampleItems` / `SampleMobs` slices plus stricter instructions to only reference provided IDs, preparing the AI for mod-aware item usage and future mob-aware actions.
+- Rebuilt via `./gradlew build` to confirm the new command + prompt wiring compile cleanly (legacy upstream warnings unchanged).

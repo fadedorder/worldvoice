@@ -29,7 +29,17 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
@@ -53,6 +63,8 @@ public class YggdrasilService {
     private final Map<UUID, List<NearbyPlayerMetrics>> awakeningInsights = new ConcurrentHashMap<>();
     private final Map<UUID, ArrayDeque<Long>> advancementHistory = new ConcurrentHashMap<>();
     private final AtomicBoolean dictionaryLoaded = new AtomicBoolean(false);
+    private final AtomicBoolean itemDictionaryLoaded = new AtomicBoolean(false);
+    private final AtomicBoolean mobDictionaryLoaded = new AtomicBoolean(false);
     private final ScheduledExecutorService intervalExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "WorldVoice-Yggdrasil-Timer");
         t.setDaemon(true);
@@ -64,8 +76,12 @@ public class YggdrasilService {
     private volatile long aiCircuitUntilMs = 0L;
 
     private SkillDictionary dictionary;
+    private ItemDictionary itemDictionary;
+    private MobDictionary mobDictionary;
     private long lastRunMs = 0L;
     private long dictionaryLastAttempt = 0L;
+    private long itemDictionaryLastAttempt = 0L;
+    private long mobDictionaryLastAttempt = 0L;
     private static final long ADVANCEMENT_WINDOW_MS = 60L * 60L * 1000L;
 
     private SkillDictionary ensureDictionary() {
@@ -86,6 +102,58 @@ public class YggdrasilService {
         Path configured = Path.of(WVConfig.YGG_DICTIONARY_PATH.get());
         InputStream fallback = YggdrasilService.class.getResourceAsStream("/defaultconfigs/worldvoice/yggdrasil-skills.json5");
         dictionary = SkillDictionary.load(configured, fallback);
+    }
+
+    private ItemDictionary ensureItemDictionary() {
+        if (itemDictionaryLoaded.compareAndSet(false, true) || staleItemDictionary()) {
+            reloadItemDictionary();
+        }
+        return itemDictionary;
+    }
+
+    private MobDictionary ensureMobDictionary() {
+        if (mobDictionaryLoaded.compareAndSet(false, true) || staleMobDictionary()) {
+            reloadMobDictionary();
+        }
+        return mobDictionary;
+    }
+
+    private boolean staleItemDictionary() {
+        long now = System.currentTimeMillis();
+        long interval = 5 * 60 * 1000L;
+        return now - itemDictionaryLastAttempt > interval;
+    }
+
+    private boolean staleMobDictionary() {
+        long now = System.currentTimeMillis();
+        long interval = 5 * 60 * 1000L;
+        return now - mobDictionaryLastAttempt > interval;
+    }
+
+    public void reloadItemDictionary() {
+        itemDictionaryLastAttempt = System.currentTimeMillis();
+        Path configured = Path.of(WVConfig.YGG_ITEM_DICTIONARY_PATH.get());
+        InputStream fallback = YggdrasilService.class.getResourceAsStream("/defaultconfigs/worldvoice/yggdrasil-items.json5");
+        itemDictionary = ItemDictionary.load(configured, fallback);
+    }
+
+    public void reloadMobDictionary() {
+        mobDictionaryLastAttempt = System.currentTimeMillis();
+        Path configured = Path.of(WVConfig.YGG_MOB_DICTIONARY_PATH.get());
+        InputStream fallback = YggdrasilService.class.getResourceAsStream("/defaultconfigs/worldvoice/yggdrasil-mobs.json5");
+        mobDictionary = MobDictionary.load(configured, fallback);
+    }
+
+    public SkillDictionary dictionary() {
+        return ensureDictionary();
+    }
+
+    public ItemDictionary itemDictionary() {
+        return ensureItemDictionary();
+    }
+
+    public MobDictionary mobDictionary() {
+        return ensureMobDictionary();
     }
 
     @SubscribeEvent
@@ -422,9 +490,15 @@ public class YggdrasilService {
                 weight = 1.0d + (tier - 3) * 0.05d; // small +/- bias
             }
         }
-        weight += profile.experienceLevel() / 30.0d;
-        weight += Math.min(2.0d, profile.playTicks() / 72000.0d);
-        if (profile.hasTeam()) weight += 0.5d;
+        weight += Math.min(1.5d, profile.experienceLevel() / 40.0d);
+        double hours = profile.playHours();
+        if (hours > 0) {
+            weight += Math.min(1.25d, hours / 25.0d);
+        }
+        weight += Math.min(1.0d, profile.killsPerHour() / 10.0d);
+        weight += Math.min(0.5d, profile.blocksPlacedPerHour() / 120.0d);
+        weight -= Math.min(0.8d, profile.deathsPerHour() / 1.5d);
+        if (profile.hasTeam()) weight += 0.3d;
         if (reason == QueueReason.AWAKENING_DEMON || reason == QueueReason.AWAKENING_HERO) {
             weight += 2.0d * favorMultiplier;
         } else if (reason == QueueReason.SUBORDINATE) {
@@ -446,6 +520,15 @@ public class YggdrasilService {
                 .append(", playTicks=").append(profile.playTicks())
                 .append(", distance=").append(profile.distanceTravelled())
                 .append(", hasTeam=").append(profile.hasTeam()).append("\n");
+        sb.append(String.format(Locale.ROOT,
+                "Profile: playHours=%.1f, killsPerHour=%.1f, deathsPerHour=%.2f, buildRate=%.1f, craftRate=%.1f, damageTakenPerHour=%.1f%n",
+                profile.playHours(),
+                profile.killsPerHour(),
+                profile.deathsPerHour(),
+                profile.blocksPlacedPerHour(),
+                profile.craftsPerHour(),
+                profile.damageTakenPerHour()));
+        sb.append("ProfileTags=").append(String.join(",", profile.profileTags())).append("\n");
         sb.append("RecentAdvancements=").append(profile.recentAdvancements())
                 .append(", uniquesOwned=").append(profile.uniqueOwned())
                 .append(", lastEvaluationMs=").append(profile.lastEvaluationMs()).append("\n");
@@ -502,7 +585,13 @@ public class YggdrasilService {
         String apiKey = WVConfig.YGG_OPENROUTER_KEY.get();
         long now = System.currentTimeMillis();
         if (apiKey == null || apiKey.isBlank() || !canUseAi(now)) return Optional.empty();
-        SkillDictionary dict = ensureDictionary();
+        SkillDictionary dict = dictionary();
+        ItemDictionary itemDict = itemDictionary();
+        MobDictionary mobDict = mobDictionary();
+        List<String> tokens = extractTokens(wishText);
+        List<SkillDictionary.SkillMeta> sampleSkills = pickSkillSamples(dict, tokens, 10);
+        List<ItemDictionary.ItemMeta> sampleItems = allowItems ? pickItemSamples(itemDict, tokens, 14) : List.of();
+        List<MobDictionary.MobMeta> sampleMobs = pickMobSamples(mobDict, tokens, 10);
         String system = """
                 You are Yggdrasil, the Voice of the World from Tensura.
                 Judge the wish with divine neutrality. Consider the player's history, favor, strictness, and intensity.
@@ -527,6 +616,7 @@ public class YggdrasilService {
                 grantCommands/penaltyCommands may be empty arrays. Commands MUST use %player% as a placeholder and only use safe verbs (give, effect, xp/experience, worldvoice, playsound, attribute, data modify entity, title).
                 If grant=false, describe the consequence and include penaltyCommands when appropriate.
                 Prefer using typed actions for EP/magicules/aura/race changes when possible.
+                Use only identifiers drawn from SampleUniqueSkills, SampleItems, or SampleMobs (or obvious vanilla defaults). Never invent ids.
                 Weigh intensity and favor: greater intensity means harsher backlash when denying.
                 """;
         StringBuilder user = new StringBuilder();
@@ -534,6 +624,10 @@ public class YggdrasilService {
                 .append(" level=").append(profile.experienceLevel())
                 .append(" deaths=").append(profile.totalDeaths())
                 .append(" playTicks=").append(profile.playTicks())
+                .append(" playHours=").append(String.format(Locale.ROOT, "%.1f", profile.playHours()))
+                .append(" killsPerHour=").append(String.format(Locale.ROOT, "%.1f", profile.killsPerHour()))
+                .append(" deathsPerHour=").append(String.format(Locale.ROOT, "%.2f", profile.deathsPerHour()))
+                .append(" blocksPlacedPerHour=").append(String.format(Locale.ROOT, "%.1f", profile.blocksPlacedPerHour()))
                 .append(" ep=").append(Math.round(profile.ep()))
                 .append(" magicules=").append(Math.round(profile.magicules()))
                 .append(" aura=").append(Math.round(profile.aura()))
@@ -547,10 +641,19 @@ public class YggdrasilService {
                 .append(" requiresFavor=").append(requiresFavor)
                 .append(" allowSkills=").append(allowSkills)
                 .append(" allowItems=").append(allowItems)
+                .append(" mobsKilled=").append(profile.mobsKilled())
+                .append(" bossKills=").append(profile.bossKills())
+                .append(" damageTakenPerHour=").append(String.format(Locale.ROOT, "%.1f", profile.damageTakenPerHour()))
                 .append("\nWish: ").append(wishText);
-        if (dict != null && allowSkills) {
-            user.append("\nSampleUniqueSkills: ");
-            dict.all().stream().limit(5).forEach(meta -> user.append(meta.id()).append(" "));
+        user.append("\nProfileTags=").append(String.join(",", profile.profileTags()));
+        if (!sampleSkills.isEmpty()) {
+            user.append("\nSampleUniqueSkills: ").append(formatSkillSamples(sampleSkills));
+        }
+        if (!sampleItems.isEmpty()) {
+            user.append("\nSampleItems: ").append(formatItemSamples(sampleItems));
+        }
+        if (!sampleMobs.isEmpty()) {
+            user.append("\nSampleMobs: ").append(formatMobSamples(sampleMobs));
         }
         user.append("\nAllowedCommands=give,effect,worldvoice,xp,experience,playsound,attribute,data modify entity,title. Use %player% placeholder.");
         user.append("\nTypedActions: ")
@@ -1027,6 +1130,184 @@ public class YggdrasilService {
             sb.append(Character.toUpperCase(part.charAt(0)));
             if (part.length() > 1) {
                 sb.append(part.substring(1));
+            }
+        }
+        return sb.toString();
+    }
+
+    private List<String> extractTokens(String text) {
+        if (text == null || text.isBlank()) return List.of();
+        String lowered = text.toLowerCase(Locale.ROOT);
+        String[] raw = lowered.split("[^a-z0-9:_]+");
+        LinkedHashSet<String> tokens = new LinkedHashSet<>();
+        for (String token : raw) {
+            if (token == null) continue;
+            token = token.trim();
+            if (token.isBlank()) continue;
+            if (token.length() < 3 && !token.contains(":")) continue;
+            tokens.add(token);
+        }
+        return List.copyOf(tokens);
+    }
+
+    private List<SkillDictionary.SkillMeta> pickSkillSamples(SkillDictionary dict, List<String> tokens, int limit) {
+        if (dict == null || limit <= 0) return List.of();
+        List<SkillDictionary.SkillMeta> out = new ArrayList<>();
+        Set<ResourceLocation> seen = new HashSet<>();
+        if (tokens != null && !tokens.isEmpty()) {
+            for (String token : tokens) {
+                String lowered = token.toLowerCase(Locale.ROOT);
+                for (SkillDictionary.SkillMeta meta : dict.all()) {
+                    if (seen.contains(meta.id())) continue;
+                    if (matchesSkill(meta, lowered)) {
+                        out.add(meta);
+                        seen.add(meta.id());
+                        if (out.size() >= limit) return out;
+                    }
+                }
+            }
+        }
+        if (out.size() < limit) {
+            for (SkillDictionary.SkillMeta meta : dict.all()) {
+                if (seen.add(meta.id())) out.add(meta);
+                if (out.size() >= limit) break;
+            }
+        }
+        return out;
+    }
+
+    private boolean matchesSkill(SkillDictionary.SkillMeta meta, String token) {
+        if (token == null || token.isBlank()) return false;
+        String path = meta.id().getPath().toLowerCase(Locale.ROOT);
+        if (path.contains(token)) return true;
+        if (meta.name().toLowerCase(Locale.ROOT).contains(token)) return true;
+        for (String tag : meta.tags()) {
+            if (tag.toLowerCase(Locale.ROOT).contains(token)) return true;
+        }
+        return false;
+    }
+
+    private List<ItemDictionary.ItemMeta> pickItemSamples(ItemDictionary dict, List<String> tokens, int limit) {
+        if (dict == null || limit <= 0) return List.of();
+        List<ItemDictionary.ItemMeta> out = new ArrayList<>();
+        Set<ResourceLocation> seen = new HashSet<>();
+        if (tokens != null && !tokens.isEmpty()) {
+            for (String token : tokens) {
+                String lowered = token.toLowerCase(Locale.ROOT);
+                for (ItemDictionary.ItemMeta meta : dict.all()) {
+                    if (seen.contains(meta.id())) continue;
+                    if (matchesItem(meta, lowered)) {
+                        out.add(meta);
+                        seen.add(meta.id());
+                        if (out.size() >= limit) return out;
+                    }
+                }
+            }
+        }
+        if (out.size() < limit) {
+            for (ItemDictionary.ItemMeta meta : dict.all()) {
+                if (seen.add(meta.id())) out.add(meta);
+                if (out.size() >= limit) break;
+            }
+        }
+        return out;
+    }
+
+    private boolean matchesItem(ItemDictionary.ItemMeta meta, String token) {
+        if (token == null || token.isBlank()) return false;
+        String path = meta.id().getPath().toLowerCase(Locale.ROOT);
+        if (path.contains(token)) return true;
+        if (meta.name().toLowerCase(Locale.ROOT).contains(token)) return true;
+        for (String tag : meta.tags()) {
+            if (tag.toLowerCase(Locale.ROOT).contains(token)) return true;
+        }
+        if (meta.role() != null && meta.role().toLowerCase(Locale.ROOT).contains(token)) return true;
+        return false;
+    }
+
+    private List<MobDictionary.MobMeta> pickMobSamples(MobDictionary dict, List<String> tokens, int limit) {
+        if (dict == null || limit <= 0) return List.of();
+        List<MobDictionary.MobMeta> out = new ArrayList<>();
+        Set<ResourceLocation> seen = new HashSet<>();
+        if (tokens != null && !tokens.isEmpty()) {
+            for (String token : tokens) {
+                String lowered = token.toLowerCase(Locale.ROOT);
+                for (MobDictionary.MobMeta meta : dict.all()) {
+                    if (seen.contains(meta.id())) continue;
+                    if (matchesMob(meta, lowered)) {
+                        out.add(meta);
+                        seen.add(meta.id());
+                        if (out.size() >= limit) return out;
+                    }
+                }
+            }
+        }
+        if (out.size() < limit) {
+            for (MobDictionary.MobMeta meta : dict.all()) {
+                if (seen.add(meta.id())) out.add(meta);
+                if (out.size() >= limit) break;
+            }
+        }
+        return out;
+    }
+
+    private boolean matchesMob(MobDictionary.MobMeta meta, String token) {
+        if (token == null || token.isBlank()) return false;
+        String path = meta.id().getPath().toLowerCase(Locale.ROOT);
+        if (path.contains(token)) return true;
+        if (meta.name().toLowerCase(Locale.ROOT).contains(token)) return true;
+        if (!meta.category().isBlank() && meta.category().toLowerCase(Locale.ROOT).contains(token)) return true;
+        for (String tag : meta.tags()) {
+            if (tag.toLowerCase(Locale.ROOT).contains(token)) return true;
+        }
+        return false;
+    }
+
+    private String formatSkillSamples(List<SkillDictionary.SkillMeta> entries) {
+        if (entries == null || entries.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder();
+        for (SkillDictionary.SkillMeta meta : entries) {
+            if (sb.length() > 0) sb.append("; ");
+            sb.append(meta.id())
+                    .append("|").append(meta.name())
+                    .append("|tier=").append(meta.tier());
+            if (!meta.tags().isEmpty()) {
+                sb.append("|tags=").append(meta.tags());
+            }
+        }
+        return sb.toString();
+    }
+
+    private String formatItemSamples(List<ItemDictionary.ItemMeta> entries) {
+        if (entries == null || entries.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder();
+        for (ItemDictionary.ItemMeta meta : entries) {
+            if (sb.length() > 0) sb.append("; ");
+            sb.append(meta.id())
+                    .append("|").append(meta.name());
+            if (meta.role() != null && !meta.role().isBlank()) {
+                sb.append("|role=").append(meta.role());
+            }
+            if (!meta.tags().isEmpty()) {
+                sb.append("|tags=").append(meta.tags());
+            }
+        }
+        return sb.toString();
+    }
+
+    private String formatMobSamples(List<MobDictionary.MobMeta> entries) {
+        if (entries == null || entries.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder();
+        for (MobDictionary.MobMeta meta : entries) {
+            if (sb.length() > 0) sb.append("; ");
+            sb.append(meta.id())
+                    .append("|").append(meta.name());
+            if (!meta.category().isBlank()) {
+                sb.append("|category=").append(meta.category());
+            }
+            sb.append("|difficulty=").append(String.format(Locale.ROOT, "%.1f", meta.difficulty()));
+            if (!meta.tags().isEmpty()) {
+                sb.append("|tags=").append(meta.tags());
             }
         }
         return sb.toString();

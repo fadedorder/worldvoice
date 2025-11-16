@@ -24,6 +24,8 @@ public class WVConfig {
     public static final ForgeConfigSpec.IntValue YGG_PER_PLAYER_UNIQUE_CAP;
     public static final ForgeConfigSpec.BooleanValue YGG_REQUIRE_EVENT;
     public static final ForgeConfigSpec.ConfigValue<String> YGG_DICTIONARY_PATH;
+    public static final ForgeConfigSpec.ConfigValue<String> YGG_ITEM_DICTIONARY_PATH;
+    public static final ForgeConfigSpec.ConfigValue<String> YGG_MOB_DICTIONARY_PATH;
     public static final ForgeConfigSpec.ConfigValue<String> YGG_OPENROUTER_MODEL;
     public static final ForgeConfigSpec.ConfigValue<String> YGG_OPENROUTER_KEY;
     public static final ForgeConfigSpec.IntValue YGG_OPENROUTER_MAX_TOKENS;
@@ -87,6 +89,10 @@ public class WVConfig {
                 .define("requireTriggerEvent", true);
         YGG_DICTIONARY_PATH = b.comment("Path to the skill dictionary file describing intent/tags. Relative to the game directory.")
                 .define("dictionaryPath", "config/worldvoice/yggdrasil-skills.json5");
+        YGG_ITEM_DICTIONARY_PATH = b.comment("Path to the item dictionary file describing mod-aware item metadata.")
+                .define("itemDictionaryPath", "config/worldvoice/yggdrasil-items.json5");
+        YGG_MOB_DICTIONARY_PATH = b.comment("Path to the mob dictionary file describing entity metadata.")
+                .define("mobDictionaryPath", "config/worldvoice/yggdrasil-mobs.json5");
         YGG_LOG_DECISIONS = b.comment("Write every Yggdrasil decision (success/failures) into the JSONL log.")
                 .define("logDecisions", true);
         YGG_AWAKENING_RADIUS = b.comment("Radius (blocks) to scan for subordinates when an awakening occurs.")

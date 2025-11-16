@@ -2,6 +2,7 @@ package org.faded.worldvoice.ai;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -11,13 +12,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Skill dictionary: loads rich metadata for skills and exposes it to AI prompts.
@@ -29,6 +37,7 @@ import java.util.*;
 public final class SkillDictionary {
     private static final Logger LOGGER = LoggerFactory.getLogger(SkillDictionary.class);
     private static final Gson GSON = new Gson();
+    private static final Gson PRETTY = new GsonBuilder().setPrettyPrinting().create();
 
     private final Map<ResourceLocation, SkillMeta> entries = new LinkedHashMap<>();
     private long lastLoadedMs;
@@ -39,6 +48,32 @@ public final class SkillDictionary {
 
     public Collection<SkillMeta> all() {
         return Collections.unmodifiableCollection(entries.values());
+    }
+
+    public boolean contains(ResourceLocation id) {
+        return entries.containsKey(id);
+    }
+
+    public boolean addEntry(SkillMeta meta) {
+        if (meta == null || meta.id() == null) return false;
+        return entries.putIfAbsent(meta.id(), meta) == null;
+    }
+
+    public void write(Path path) throws IOException {
+        Path parent = path.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+        JsonObject root = new JsonObject();
+        JsonArray array = new JsonArray();
+        for (SkillMeta meta : entries.values()) {
+            array.add(encodeMeta(meta));
+        }
+        root.add("skills", array);
+        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            PRETTY.toJson(root, writer);
+        }
+        LOGGER.info("Wrote {} skill dictionary entries to {}.", entries.size(), path);
     }
 
     public static SkillDictionary load(Path customPath, InputStream defaultStreamSupplier) {
@@ -126,6 +161,28 @@ public final class SkillDictionary {
 
         SkillMeta meta = new SkillMeta(id, name, tier, notes, tags, evolution, combines);
         entries.put(id, meta);
+    }
+
+    private JsonObject encodeMeta(SkillMeta meta) {
+        JsonObject obj = new JsonObject();
+        obj.addProperty("id", meta.id().toString());
+        obj.addProperty("name", meta.name());
+        obj.addProperty("tier", meta.tier());
+        if (!meta.notes().isBlank()) obj.addProperty("notes", meta.notes());
+        if (!meta.tags().isEmpty()) {
+            JsonArray tags = new JsonArray();
+            meta.tags().forEach(tags::add);
+            obj.add("tags", tags);
+        }
+        if (meta.evolution() != null) {
+            obj.addProperty("evolution", meta.evolution().toString());
+        }
+        if (!meta.combines().isEmpty()) {
+            JsonArray combines = new JsonArray();
+            meta.combines().forEach(id -> combines.add(id.toString()));
+            obj.add("combines", combines);
+        }
+        return obj;
     }
 
     private static String optString(JsonObject obj, String key, String def) {

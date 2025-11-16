@@ -22,11 +22,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.faded.worldvoice.ai.YggdrasilHooks;
 import org.faded.worldvoice.ai.YggdrasilSavedData;
 import org.faded.worldvoice.ai.YggdrasilService;
+import org.faded.worldvoice.ai.ItemDictionary;
+import org.faded.worldvoice.ai.MobDictionary;
+import org.faded.worldvoice.ai.SkillDictionary;
 import org.faded.worldvoice.config.WVConfig;
 import org.faded.worldvoice.core.SkillCategory;
 import org.faded.worldvoice.core.SkillConfigManager;
@@ -35,6 +42,8 @@ import org.faded.worldvoice.service.SkillService;
 import org.faded.worldvoice.util.LogJsonL;
 import org.faded.worldvoice.world.WorldVoiceGameRules;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -479,7 +488,19 @@ public class CommandRegistrar {
                         .then(buildYggCoreSettings())
                         .then(buildYggWishSettings())
                         .then(buildYggAiSettings())
-                );
+                )
+                .then(Commands.literal("register")
+                        .then(Commands.literal("skills").executes(ctx -> registerSkillsDictionary(ctx.getSource())))
+                        .then(Commands.literal("items").executes(ctx -> registerItemsDictionary(ctx.getSource())))
+                        .then(Commands.literal("mobs").executes(ctx -> registerMobsDictionary(ctx.getSource())))
+                        .then(Commands.literal("all").executes(ctx -> {
+                            int skills = registerSkillsDictionary(ctx.getSource());
+                            int items = registerItemsDictionary(ctx.getSource());
+                            int mobs = registerMobsDictionary(ctx.getSource());
+                            ctx.getSource().sendSuccess(Component.literal("Dictionary scan complete (skills=" + skills + ", items=" + items + ", mobs=" + mobs + ")."), true);
+                            return skills + items + mobs;
+                        })))
+                ;
     }
 
     private ArgumentBuilder<CommandSourceStack, ?> buildYggCoreSettings() {
@@ -1115,6 +1136,102 @@ public class CommandRegistrar {
                 return false;
             }
         }
+    }
+
+    private int registerSkillsDictionary(CommandSourceStack src) throws CommandSyntaxException {
+        YggdrasilService svc = requireYggdrasil();
+        SkillDictionary dict = svc.dictionary();
+        int added = 0;
+        for (ManasSkill skill : SkillAPI.getSkillRegistry().getValues()) {
+            ResourceLocation id = skill.getRegistryName();
+            if (id == null || dict.contains(id)) continue;
+            SkillDictionary.SkillMeta meta = autoSkillMeta(id);
+            if (dict.addEntry(meta)) added++;
+        }
+        if (added == 0) {
+            src.sendSuccess(Component.literal("No new skill entries discovered."), false);
+            return 0;
+        }
+        try {
+            dict.write(Path.of(WVConfig.YGG_DICTIONARY_PATH.get()));
+            svc.reloadDictionary();
+        } catch (IOException ex) {
+            src.sendFailure(Component.literal("Failed to write skill dictionary: " + ex.getMessage()));
+            return 0;
+        }
+        src.sendSuccess(Component.literal("Registered " + added + " new skill entries."), true);
+        return added;
+    }
+
+    private SkillDictionary.SkillMeta autoSkillMeta(ResourceLocation id) {
+        SkillCategory cat = SkillConfigManager.INSTANCE.classify(id);
+        int tier = 3;
+        if (cat == SkillCategory.UNIQUE) tier = 4;
+        else if (cat == SkillCategory.ULTIMATE) tier = 5;
+        List<String> tags = new ArrayList<>();
+        if (cat != null) {
+            tags.add(cat.name().toLowerCase(Locale.ROOT));
+        }
+        return new SkillDictionary.SkillMeta(
+                id,
+                SkillDictionary.prettifyId(id),
+                tier,
+                "Auto-registered entry.",
+                tags,
+                null,
+                List.of()
+        );
+    }
+
+    private int registerItemsDictionary(CommandSourceStack src) throws CommandSyntaxException {
+        YggdrasilService svc = requireYggdrasil();
+        ItemDictionary dict = svc.itemDictionary();
+        int added = 0;
+        for (Item item : ForgeRegistries.ITEMS.getValues()) {
+            ItemDictionary.ItemMeta meta = ItemDictionary.autoDescribe(item);
+            if (meta == null || dict.contains(meta.id())) continue;
+            if (dict.addEntry(meta)) added++;
+        }
+        if (added == 0) {
+            src.sendSuccess(Component.literal("No new item entries discovered."), false);
+            return 0;
+        }
+        try {
+            dict.write(Path.of(WVConfig.YGG_ITEM_DICTIONARY_PATH.get()));
+            svc.reloadItemDictionary();
+        } catch (IOException ex) {
+            src.sendFailure(Component.literal("Failed to write item dictionary: " + ex.getMessage()));
+            return 0;
+        }
+        src.sendSuccess(Component.literal("Registered " + added + " new item entries."), true);
+        return added;
+    }
+
+    private int registerMobsDictionary(CommandSourceStack src) throws CommandSyntaxException {
+        YggdrasilService svc = requireYggdrasil();
+        MobDictionary dict = svc.mobDictionary();
+        int added = 0;
+        for (EntityType<?> type : ForgeRegistries.ENTITY_TYPES.getValues()) {
+            if (type == null) continue;
+            MobCategory category = type.getCategory();
+            if (category == null || category == MobCategory.MISC) continue;
+            MobDictionary.MobMeta meta = MobDictionary.autoDescribe(type);
+            if (meta == null || dict.contains(meta.id())) continue;
+            if (dict.addEntry(meta)) added++;
+        }
+        if (added == 0) {
+            src.sendSuccess(Component.literal("No new mob entries discovered."), false);
+            return 0;
+        }
+        try {
+            dict.write(Path.of(WVConfig.YGG_MOB_DICTIONARY_PATH.get()));
+            svc.reloadMobDictionary();
+        } catch (IOException ex) {
+            src.sendFailure(Component.literal("Failed to write mob dictionary: " + ex.getMessage()));
+            return 0;
+        }
+        src.sendSuccess(Component.literal("Registered " + added + " new mob entries."), true);
+        return added;
     }
 
     private YggdrasilService requireYggdrasil() throws CommandSyntaxException {
