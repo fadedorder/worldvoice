@@ -1,0 +1,243 @@
+{
+  // Expanded Item Dictionary Example
+  // Copy this to config/worldvoice/yggdrasil-items.json5
+
+  items: [
+    // ===== VANILLA WEAPONS =====
+    {
+      id: "minecraft:netherite_sword",
+      name: "Netherite Sword",
+      mod: "minecraft",
+      role: "weapon",
+      rarity: "rare",
+      tags: ["melee", "endgame", "durable"],
+      notes: "Powerful endgame melee weapon with high durability"
+    },
+    {
+      id: "minecraft:diamond_sword",
+      name: "Diamond Sword",
+      mod: "minecraft",
+      role: "weapon",
+      rarity: "uncommon",
+      tags: ["melee", "mid-tier"],
+      notes: "Standard mid-game melee weapon"
+    },
+    {
+      id: "minecraft:iron_sword",
+      name: "Iron Sword",
+      mod: "minecraft",
+      role: "weapon",
+      rarity: "common",
+      tags: ["starter", "melee"],
+      notes: "Baseline blade entry"
+    },
+    {
+      id: "minecraft:bow",
+      name: "Bow",
+      mod: "minecraft",
+      role: "weapon",
+      rarity: "common",
+      tags: ["ranged", "projectile"],
+      notes: "Standard ranged weapon"
+    },
+    {
+      id: "minecraft:crossbow",
+      name: "Crossbow",
+      mod: "minecraft",
+      role: "weapon",
+      rarity: "uncommon",
+      tags: ["ranged", "projectile", "precision"],
+      notes: "Advanced ranged weapon with multishot capability"
+    },
+    {
+      id: "minecraft:trident",
+      name: "Trident",
+      mod: "minecraft",
+      role: "weapon",
+      rarity: "rare",
+      tags: ["melee", "ranged", "water", "lightning"],
+      notes: "Versatile weapon effective in water and with channeling"
+    },
+
+    // ===== VANILLA ARMOR =====
+    {
+      id: "minecraft:netherite_helmet",
+      name: "Netherite Helmet",
+      mod: "minecraft",
+      role: "armor",
+      rarity: "rare",
+      tags: ["protection", "endgame", "head"],
+      notes: "Best-in-class head protection"
+    },
+    {
+      id: "minecraft:netherite_chestplate",
+      name: "Netherite Chestplate",
+      mod: "minecraft",
+      role: "armor",
+      rarity: "rare",
+      tags: ["protection", "endgame", "chest"],
+      notes: "Best-in-class chest protection"
+    },
+    {
+      id: "minecraft:diamond_chestplate",
+      name: "Diamond Chestplate",
+      mod: "minecraft",
+      role: "armor",
+      rarity: "uncommon",
+      tags: ["protection", "chest"],
+      notes: "Strong chest protection"
+    },
+    {
+      id: "minecraft:elytra",
+      name: "Elytra",
+      mod: "minecraft",
+      role: "mobility",
+      rarity: "epic",
+      tags: ["flight", "rare", "utility"],
+      notes: "Enables flight with firework rockets, extremely valuable"
+    },
+
+    // ===== VANILLA TOOLS =====
+    {
+      id: "minecraft:netherite_pickaxe",
+      name: "Netherite Pickaxe",
+      mod: "minecraft",
+      role: "tool",
+      rarity: "rare",
+      tags: ["mining", "endgame", "efficient"],
+      notes: "Fastest and most durable pickaxe"
+    },
+    {
+      id: "minecraft:diamond_pickaxe",
+      name: "Diamond Pickaxe",
+      mod: "minecraft",
+      role: "tool",
+      rarity: "uncommon",
+      tags: ["mining", "efficient"],
+      notes: "Standard endgame mining tool"
+    },
+    {
+      id: "minecraft:iron_pickaxe",
+      name: "Iron Pickaxe",
+      mod: "minecraft",
+      role: "tool",
+      rarity: "common",
+      tags: ["mining", "starter"],
+      notes: "Basic mining tool"
+    },
+
+    // ===== VANILLA FOOD =====
+    {
+      id: "minecraft:golden_apple",
+      name: "Golden Apple",
+      mod: "minecraft",
+      role: "food",
+      rarity: "uncommon",
+      tags: ["healing", "regeneration", "absorption"],
+      notes: "Provides regeneration and absorption"
+    },
+    {
+      id: "minecraft:enchanted_golden_apple",
+      name: "Enchanted Golden Apple",
+      mod: "minecraft",
+      role: "food",
+      rarity: "epic",
+      tags: ["healing", "regeneration", "absorption", "rare"],
+      notes: "Notch apple - powerful healing and buffs"
+    },
+    {
+      id: "minecraft:golden_carrot",
+      name: "Golden Carrot",
+      mod: "minecraft",
+      role: "food",
+      rarity: "common",
+      tags: ["food", "saturation"],
+      notes: "Best saturation food in vanilla"
+    },
+
+    // ===== VANILLA SPECIAL ITEMS =====
+    {
+      id: "minecraft:nether_star",
+      name: "Nether Star",
+      mod: "minecraft",
+      role: "material",
+      rarity: "epic",
+      tags: ["boss", "rare", "crafting"],
+      notes: "Dropped by Wither, used for beacons"
+    },
+    {
+      id: "minecraft:dragon_egg",
+      name: "Dragon Egg",
+      mod: "minecraft",
+      role: "trophy",
+      rarity: "legendary",
+      tags: ["unique", "boss", "decorative"],
+      notes: "Unique trophy from Ender Dragon"
+    },
+    {
+      id: "minecraft:totem_of_undying",
+      name: "Totem of Undying",
+      mod: "minecraft",
+      role: "utility",
+      rarity: "rare",
+      tags: ["life-saving", "rare", "resurrection"],
+      notes: "Prevents death once when held"
+    },
+    {
+      id: "minecraft:beacon",
+      name: "Beacon",
+      mod: "minecraft",
+      role: "utility",
+      rarity: "epic",
+      tags: ["buff", "permanent", "utility"],
+      notes: "Provides permanent area buffs"
+    },
+
+    // ===== EXAMPLE MODDED ITEMS =====
+    // Add your actual modded items here based on your modpack
+
+    // Draconic Evolution examples (if you have it)
+    // {
+    //   id: "draconicevolution:draconic_sword",
+    //   name: "Draconic Sword",
+    //   mod: "draconicevolution",
+    //   role: "weapon",
+    //   rarity: "legendary",
+    //   tags: ["melee", "energy", "powerful", "endgame"],
+    //   notes: "Extremely powerful energy-based sword"
+    // },
+
+    // Tinkers' Construct examples (if you have it)
+    // {
+    //   id: "tconstruct:pickaxe",
+    //   name: "Tinker's Pickaxe",
+    //   mod: "tconstruct",
+    //   role: "tool",
+    //   rarity: "uncommon",
+    //   tags: ["mining", "modular", "customizable"],
+    //   notes: "Customizable modular pickaxe"
+    // },
+
+    // Botania examples (if you have it)
+    // {
+    //   id: "botania:terra_sword",
+    //   name: "Terra Blade",
+    //   mod: "botania",
+    //   role: "weapon",
+    //   rarity: "epic",
+    //   tags: ["melee", "magic", "mana", "projectile"],
+    //   notes: "Legendary mana-powered blade that shoots beams"
+    // },
+
+    // Mekanism examples (if you have it)
+    // {
+    //   id: "mekanism:atomic_disassembler",
+    //   name: "Atomic Disassembler",
+    //   mod: "mekanism",
+    //   role: "tool",
+    //   rarity: "epic",
+    //   tags: ["mining", "energy", "multi-tool"],
+    //   notes: "Energy-powered all-in-one tool"
+    // }
+  ]
+}
