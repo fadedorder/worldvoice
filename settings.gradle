@@ -3,9 +3,9 @@ pluginManagement {
         gradlePluginPortal()
         maven {
             name = 'MinecraftForge'
-            url = 'https://maven.minecraftforge.net/'
+            url = 'https:
         }
-        maven { url = 'https://maven.parchmentmc.org' }
+        maven { url = 'https:
     }
 }
 

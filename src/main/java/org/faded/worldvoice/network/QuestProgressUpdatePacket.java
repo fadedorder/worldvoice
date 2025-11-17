@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-/**
- * Packet sent from server to client when quest progress updates
- */
+
 public class QuestProgressUpdatePacket {
     private final UUID questId;
     private final int objectiveIndex;
@@ -70,7 +68,7 @@ public class QuestProgressUpdatePacket {
                     clientManagerClass.getMethod("addOrUpdateQuest", clientQuestClass).invoke(manager, quest);
                 }
             } catch (ClassNotFoundException ignored) {
-                // Client utility mod not installed
+
             } catch (Exception e) {
                 Worldvoice.LOGGER.warn("Failed to update quest progress on client", e);
             }

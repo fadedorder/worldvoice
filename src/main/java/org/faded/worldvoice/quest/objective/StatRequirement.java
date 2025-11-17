@@ -5,12 +5,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import org.faded.worldvoice.quest.QuestDisplayUtil;
 
-/**
- * Generic stat requirement (Max Aura, Max MP, etc.)
- * Can require absolute value or gain during quest
- */
+
 public class StatRequirement implements QuestObjective {
-    private final String statName; // "max_aura", "max_mp", etc.
+    private final String statName;
     private final double requiredValue;
     private double currentValue;
     private final double startValue;

@@ -481,13 +481,11 @@ public class YggdrasilService {
     private double computeScore(SkillCandidate candidate, PlayerProfileSnapshot profile,
                                 double favorMultiplier, QueueReason reason, SkillDictionary dict) {
         double weight = 1.0d;
-        // Disregard old dictionary weight system; keep a neutral baseline.
-        // Optionally nudge based on tier, but keep the effect minimal for fallback.
         if (dict != null) {
             var metaOpt = dict.lookup(candidate.id());
             if (metaOpt.isPresent()) {
                 int tier = Math.max(1, Math.min(5, metaOpt.get().tier()));
-                weight = 1.0d + (tier - 3) * 0.05d; // small +/- bias
+                weight = 1.0d + (tier - 3) * 0.05d;
             }
         }
         weight += Math.min(1.5d, profile.experienceLevel() / 40.0d);

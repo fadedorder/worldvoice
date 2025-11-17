@@ -18,34 +18,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-/**
- * Loads quests from JSON files
- * Checks serverconfig/worldvoice/quests/ first (per-world)
- * Falls back to config/worldvoice/quests/ (global)
- */
+
 public class QuestLoader {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final LevelResource SERVER_CONFIG_RESOURCE = new LevelResource("serverconfig");
     private static final List<AdvancedQuestData> loadedQuests = new ArrayList<>();
     private static MinecraftServer currentServer = null;
 
-    /**
-     * Load quests from serverconfig (per-world) with fallback to global config
-     */
     public static void loadQuests(MinecraftServer server) {
         currentServer = server;
         loadedQuests.clear();
 
-        // Load quests from KubeJS
         loadedQuests.addAll(KubeJSQuestRegistry.getRegisteredQuests());
 
         Path serverQuestDir = resolveServerQuestDir(server);
         Path globalQuestDir = resolveGlobalQuestDir();
 
-        // Create quest directories
         createQuestDirectories(serverQuestDir, globalQuestDir);
 
-        // Load from serverconfig first (per-world), then fallback to global config
         boolean loadedFromServer = loadQuestsFromDirectory(serverQuestDir);
         boolean loadedFromGlobal = false;
 
@@ -66,17 +56,12 @@ public class QuestLoader {
         Worldvoice.LOGGER.info("Loaded {} quests from {}", totalQuests, source);
     }
 
-    /**
-     * Load quests from a specific directory
-     * @return true if any quests were loaded, false otherwise
-     */
     private static boolean loadQuestsFromDirectory(Path baseDir) {
         if (baseDir == null) {
             return false;
         }
         int beforeCount = loadedQuests.size();
 
-        // Load quests from each category folder
         loadQuestsFromFolder(baseDir, "daily", QuestTab.DAILY, loadedQuests);
         loadQuestsFromFolder(baseDir, "weekly", QuestTab.WEEKLY, loadedQuests);
         loadQuestsFromFolder(baseDir, "one_time", QuestTab.ONE_TIME, loadedQuests);
@@ -94,11 +79,9 @@ public class QuestLoader {
     }
 
     private static void createQuestDirectories(Path serverQuestDir, Path globalQuestDir) {
-        // Create both serverconfig and global config directories
         createDirectoriesForPath(serverQuestDir);
         createDirectoriesForPath(globalQuestDir);
 
-        // Create example quests in global config only
         createExampleQuests(globalQuestDir);
     }
 
@@ -124,13 +107,11 @@ public class QuestLoader {
         }
         Path dailyDir = questDir.resolve("daily");
         try {
-            // Only create if directory exists and is empty
             if (!Files.exists(dailyDir)) {
                 return;
             }
 
             if (Files.list(dailyDir).findAny().isEmpty()) {
-                // Create an example daily quest
                 String exampleQuest = """
                 {
                   "quest_id": "worldvoice:example_daily_quest",
@@ -202,7 +183,6 @@ public class QuestLoader {
         try (FileReader reader = new FileReader(file)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
 
-            // Override category from folder structure
             json.addProperty("category", category.name());
 
             AdvancedQuestData quest = AdvancedQuestData.fromJson(json);
@@ -214,36 +194,26 @@ public class QuestLoader {
         }
     }
 
-    /**
-     * Get all loaded quests
-     */
     public static List<AdvancedQuestData> getLoadedQuests() {
         return new ArrayList<>(loadedQuests);
     }
 
-    /**
-     * Assign loaded quests to a player based on their requirements
-     */
     public static void assignQuestsToPlayer(ServerPlayer player) {
         int assignedCount = 0;
 
         for (AdvancedQuestData quest : loadedQuests) {
-            // Check if player already has this quest
             if (ServerQuestManager.getQuest(player.getUUID(), quest.getQuestId()) != null) {
                 continue;
             }
 
-            // Check if quest should auto-appear
             if (!quest.isAutoAppear()) {
                 continue;
             }
 
-            // Check if requirements are met
             if (!quest.areRequirementsMet(player)) {
                 continue;
             }
 
-            // Clone the quest for this player (to avoid shared state)
             AdvancedQuestData playerQuest = cloneQuest(quest);
             playerQuest.setStatus(QuestStatus.AVAILABLE);
             playerQuest.setTracked(false);
@@ -259,10 +229,6 @@ public class QuestLoader {
         }
     }
 
-    /**
-     * Register a quest dynamically (for KubeJS or other integrations)
-     * This adds the quest in JSON format to the system
-     */
     public static void registerQuest(JsonObject questJson) {
         try {
             AdvancedQuestData quest = AdvancedQuestData.fromJson(questJson);
@@ -273,18 +239,12 @@ public class QuestLoader {
         }
     }
 
-    /**
-     * Clone a quest to avoid shared state between players
-     */
     private static AdvancedQuestData cloneQuest(AdvancedQuestData original) {
-        // Serialize and deserialize to create a deep copy
+
         JsonObject json = original.toJson();
         return AdvancedQuestData.fromJson(json);
     }
 
-    /**
-     * Reload all quests from files
-     */
     public static void reload() {
         if (currentServer != null) {
             Worldvoice.LOGGER.info("Reloading quests from configuration...");

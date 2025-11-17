@@ -1,5 +1,5 @@
 {
-  // Minimal fallback entries for the item dictionary.
+
   items: [
     {
       id: "minecraft:iron_sword",

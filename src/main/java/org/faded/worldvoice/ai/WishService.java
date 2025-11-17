@@ -25,11 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
- 
 
-/**
- * Wish adjudication routed through Yggdrasil/AI.
- */
 public class WishService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WishService.class);
     private static final SkillService SKILL_SERVICE = new SkillService();
@@ -269,7 +265,7 @@ public class WishService {
         }
         String message = decision.backlashNarrative();
         if (message == null || message.isBlank()) {
-            message = "The Voice disperses your plea, leaving an ache.";
+            message = "The world rejects your plea.";
         }
         player.sendSystemMessage(Component.literal(message).withStyle(style -> style.withColor(0xff6b6b)));
     }
@@ -332,7 +328,7 @@ public class WishService {
         }
         return WishDecision.deny(baseline.backlashStrength(),
                 "The thread of fate remains still.",
-                "The Voice stays silent.");
+                "The world stays silent.");
     }
 
     private double clamp01(double value) {

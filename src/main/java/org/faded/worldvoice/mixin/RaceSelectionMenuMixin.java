@@ -37,7 +37,7 @@ public class RaceSelectionMenuMixin {
         }
         ServerLevel level = (ServerLevel) serverPlayer.getLevel();
         if (!WorldVoiceGameRules.isEnabled(level, SkillCategory.UNIQUE)) {
-            return; // allow Tensura to handle when WV unique slots are disabled
+            return;
         }
 
         int baseRolls = TensuraConfig.INSTANCE.skillsConfig.skillNumber.get();
@@ -72,7 +72,6 @@ public class RaceSelectionMenuMixin {
             }
         }
 
-        // Always cancel to prevent the original logic from bypassing slot enforcement
         ci.cancel();
     }
 

@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class LearnSourceTracker {
-    private static final long TTL_MS = 2000L; // short-lived markers
+    private static final long TTL_MS = 2000L;
     private static final Map<UUID, Long> PLUNDER = new HashMap<>();
     private static final Map<UUID, Long> CREATION = new HashMap<>();
 

@@ -81,7 +81,7 @@ public class CommandRegistrar {
     public void onRegister(RegisterCommandsEvent evt) {
         CommandDispatcher<CommandSourceStack> dispatcher = evt.getDispatcher();
 
-        // Register quest commands
+
         QuestCommand.register(dispatcher);
 
         dispatcher.register(
@@ -96,7 +96,7 @@ public class CommandRegistrar {
         );
     }
 
-    // duplicate method removed
+
 
     private ArgumentBuilder<CommandSourceStack, ?> buildRefreshCommand() {
         return Commands.literal("refresh")
@@ -113,7 +113,7 @@ public class CommandRegistrar {
 
     private ArgumentBuilder<CommandSourceStack, ?> buildWhitelistCommand() {
         return Commands.literal("whitelist")
-                // slots whitelist (existing behavior)
+
                 .then(Commands.literal("add")
                         .then(Commands.argument("profile", GameProfileArgument.gameProfile())
                                 .then(Commands.argument("scope", ResourceLocationArgument.id()).suggests(WHITELIST_SCOPE_SUGGEST)
@@ -139,7 +139,7 @@ public class CommandRegistrar {
                                         .executes(ctx -> whitelistInactive(ctx.getSource(),
                                                 GameProfileArgument.getGameProfiles(ctx, "profile"), false))))
                         .then(Commands.literal("list").executes(ctx -> whitelistInactiveList(ctx.getSource()))))
-                // blacklist whitelist (bypass learning blacklists)
+
                 .then(Commands.literal("blacklist")
                         .then(Commands.literal("add")
                                 .then(Commands.argument("profile", GameProfileArgument.gameProfile())
@@ -230,16 +230,15 @@ public class CommandRegistrar {
         return segments.size();
     }
 
-    // ----- Slots subcommands -----
     private ArgumentBuilder<CommandSourceStack, ?> buildSlotsCommands() {
         var root = Commands.literal("slots");
 
-        // view unique/ultimate
+
         root.then(Commands.literal("view")
                 .then(Commands.literal("unique").executes(ctx -> slotsView(ctx.getSource(), SkillCategory.UNIQUE)))
                 .then(Commands.literal("ultimate").executes(ctx -> slotsView(ctx.getSource(), SkillCategory.ULTIMATE))));
 
-        // set/add/remove unique/ultimate <skill> <n>
+
         root.then(Commands.literal("set")
                 .then(Commands.literal("unique")
                         .then(Commands.literal("all")
@@ -668,7 +667,7 @@ public class CommandRegistrar {
     }
 
     private int slotsSet(CommandSourceStack src, SkillCategory cat, ResourceLocation id, int n) {
-        // Persist in manager + ledger
+
         ServerLevel level = src.getLevel();
         SkillCategory detected = SkillConfigManager.INSTANCE.classify(id);
         if (detected != null) cat = detected;

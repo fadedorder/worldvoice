@@ -7,13 +7,11 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Registry for quest reward types
- */
+
 public class QuestRewardType<T extends QuestReward> {
     private static final Map<ResourceLocation, QuestRewardType<?>> REGISTRY = new HashMap<>();
 
-    // Built-in reward types
+
     public static final QuestRewardType<ItemReward> ITEM =
             register("item", ItemReward::fromJson, ItemReward::fromNetwork);
 
@@ -77,7 +75,7 @@ public class QuestRewardType<T extends QuestReward> {
     }
 
     public static void init() {
-        // Initialize static fields
+
     }
 
     @FunctionalInterface

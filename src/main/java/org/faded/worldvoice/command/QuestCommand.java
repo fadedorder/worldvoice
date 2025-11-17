@@ -16,14 +16,12 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Admin commands for quest management
- */
+
 public class QuestCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("wvquest")
-                .requires(source -> source.hasPermission(2)) // Requires OP level 2
+                .requires(source -> source.hasPermission(2))
                 .then(Commands.literal("give")
                         .then(Commands.argument("targets", EntityArgument.players())
                                 .then(Commands.argument("questId", StringArgumentType.string())
@@ -88,7 +86,6 @@ public class QuestCommand {
 
             int successCount = 0;
             for (ServerPlayer player : targets) {
-                // Find the quest from loaded quests
                 AdvancedQuestData sourceQuest = QuestLoader.getLoadedQuests().stream()
                         .filter(q -> q.getQuestId().equals(questId))
                         .findFirst()
@@ -99,7 +96,6 @@ public class QuestCommand {
                     continue;
                 }
 
-                // Clone quest for player
                 AdvancedQuestData playerQuest = AdvancedQuestData.fromJson(sourceQuest.toJson());
                 ServerQuestManager.addQuestToPlayer(player.getUUID(), playerQuest);
                 ServerQuestManager.syncQuests(player);
@@ -117,14 +113,10 @@ public class QuestCommand {
         return 0;
     }
 
-    /**
-     * Parse quest ID - supports both UUID strings and namespaced strings
-     */
     private static UUID parseQuestId(String questIdStr) {
         try {
             return UUID.fromString(questIdStr);
         } catch (IllegalArgumentException e) {
-            // Not a UUID, generate deterministic UUID from string
             return UUID.nameUUIDFromBytes(questIdStr.getBytes());
         }
     }
@@ -165,7 +157,6 @@ public class QuestCommand {
             for (ServerPlayer player : targets) {
                 AdvancedQuestData quest = ServerQuestManager.getQuest(player.getUUID(), questId);
                 if (quest != null && !quest.isCompleted()) {
-                    // Complete all objectives
                     for (var objective : quest.getObjectives()) {
                         try {
                             objective.getClass().getMethod("setCurrentCount", int.class)
@@ -174,7 +165,6 @@ public class QuestCommand {
                         }
                     }
 
-                    // Mark as completed
                     quest.setStatus(QuestStatus.COMPLETED);
                     quest.setCompletedTimestamp(System.currentTimeMillis());
                     ServerQuestManager.syncQuests(player);
@@ -208,7 +198,6 @@ public class QuestCommand {
                     quest.setTracked(false);
                     quest.setCompletedTimestamp(0);
 
-                    // Reset objectives
                     for (var objective : quest.getObjectives()) {
                         try {
                             objective.getClass().getMethod("setCurrentCount", int.class)
@@ -298,7 +287,6 @@ public class QuestCommand {
             Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, "targets");
             String type = StringArgumentType.getString(context, "type");
 
-            // Not fully implemented yet - would trigger QuestRefreshScheduler manually
             context.getSource().sendSuccess(Component.literal(
                     "Force refresh for " + type + " quests is not yet implemented"), false);
 

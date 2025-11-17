@@ -13,9 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-/**
- * Convenience wrappers for interacting with Tensura capabilities safely.
- */
+
 public final class TensuraBridge {
     private static final Logger LOGGER = LoggerFactory.getLogger(TensuraBridge.class);
 

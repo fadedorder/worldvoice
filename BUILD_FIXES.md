@@ -78,10 +78,10 @@ stack.getItem().getRegistryName()
 **Solution:**
 Use the new Registry API:
 ```java
-// For entity types:
+
 var mobKey = net.minecraft.core.Registry.ENTITY_TYPE.getKey(killed.getType());
 
-// For items:
+
 var stackItemKey = net.minecraft.core.Registry.ITEM.getKey(stack.getItem());
 ```
 
@@ -97,8 +97,8 @@ var stackItemKey = net.minecraft.core.Registry.ITEM.getKey(stack.getItem());
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 
 public static void onItemPickup(EntityItemPickupEvent event) {
-    event.getPlayer()  // Method doesn't exist
-    event.getItem().getItem().getItem()  // Wrong API
+    event.getPlayer()
+    event.getItem().getItem().getItem()
 }
 ```
 

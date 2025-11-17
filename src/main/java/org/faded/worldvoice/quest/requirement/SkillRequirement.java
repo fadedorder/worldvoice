@@ -8,9 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.faded.worldvoice.quest.QuestDisplayUtil;
 
-/**
- * Requirement: Player must have a specific skill
- */
 public class SkillRequirement implements QuestRequirement {
     private final ResourceLocation skillId;
     private final String displayText;

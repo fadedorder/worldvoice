@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-/**
- * Packet sent from server to client to synchronize quest data
- */
+
 public class QuestSyncPacket {
     private final List<AdvancedQuestData> quests;
 
@@ -55,7 +53,7 @@ public class QuestSyncPacket {
 
                 replaceMethod.invoke(manager, clientQuests);
             } catch (ClassNotFoundException ignored) {
-                // Client utility mod not installed
+
             } catch (Exception e) {
                 Worldvoice.LOGGER.warn("Failed to sync quests to client", e);
             }

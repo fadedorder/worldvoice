@@ -21,7 +21,7 @@ import java.util.*;
  *     event.create('my_quest_id')
  *         .title('My Quest Title')
  *         .description('Quest description')
- *         .category('DAILY')  // DAILY, WEEKLY, ONE_TIME, SPECIAL, EVOLUTION
+ *         .category('DAILY')
  *         .autoAppear(true)
  *         .requireEP(1000)
  *         .requireRace('tensura:ogre')
@@ -40,9 +40,6 @@ public class KubeJSQuestRegistry {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final List<AdvancedQuestData> registeredQuests = new ArrayList<>();
 
-    /**
-     * Builder for creating quests via KubeJS
-     */
     public static class QuestBuilder {
         private UUID questId;
         private String title = "Untitled Quest";
@@ -54,7 +51,7 @@ public class KubeJSQuestRegistry {
         private final List<QuestRequirement> requirements = new ArrayList<>();
 
         public QuestBuilder(String questIdString) {
-            // Generate deterministic UUID from string ID
+
             this.questId = UUID.nameUUIDFromBytes(("worldvoice:" + questIdString).getBytes());
         }
 
@@ -78,7 +75,6 @@ public class KubeJSQuestRegistry {
             return this;
         }
 
-        // Requirement builders
         public QuestBuilder requireEP(double amount) {
             requirements.add(new org.faded.worldvoice.quest.requirement.EPRequirement(amount));
             return this;
@@ -106,7 +102,6 @@ public class KubeJSQuestRegistry {
             return this;
         }
 
-        // Objective builders
         public QuestBuilder addKillMobObjective(String mobType, int required) {
             objectives.add(new KillMobObjective(new ResourceLocation(mobType), required, 0));
             return this;
@@ -127,7 +122,6 @@ public class KubeJSQuestRegistry {
             return this;
         }
 
-        // Reward builders
         public QuestBuilder addItemReward(String itemId, int count) {
             rewards.add(new ItemReward(new ResourceLocation(itemId), count));
             return this;
@@ -185,38 +179,23 @@ public class KubeJSQuestRegistry {
         }
     }
 
-    /**
-     * Create a new quest builder
-     */
     public static QuestBuilder create(String questId) {
         return new QuestBuilder(questId);
     }
 
-    /**
-     * Register a quest
-     */
     public static void register(AdvancedQuestData quest) {
         registeredQuests.add(quest);
         Worldvoice.LOGGER.info("Registered quest from KubeJS: {}", quest.getTitle());
     }
 
-    /**
-     * Get all registered quests
-     */
     public static List<AdvancedQuestData> getRegisteredQuests() {
         return new ArrayList<>(registeredQuests);
     }
 
-    /**
-     * Clear all registered quests (for reloading)
-     */
     public static void clear() {
         registeredQuests.clear();
     }
 
-    /**
-     * Simplified JSON-based registration for KubeJS
-     */
     public static void registerFromJson(String jsonString) {
         try {
             JsonObject json = JsonParser.parseString(jsonString).getAsJsonObject();

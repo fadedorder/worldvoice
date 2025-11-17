@@ -8,12 +8,10 @@ import org.faded.worldvoice.quest.ServerQuestManager;
 
 import java.util.UUID;
 
-/**
- * Requirement: Player must have completed another quest
- */
+
 public class CompletedQuestRequirement implements QuestRequirement {
     private final UUID requiredQuestId;
-    private final String questName; // For display purposes
+    private final String questName;
     private final String displayText;
 
     public CompletedQuestRequirement(UUID requiredQuestId, String questName) {

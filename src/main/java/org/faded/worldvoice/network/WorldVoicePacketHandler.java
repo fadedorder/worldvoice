@@ -5,9 +5,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import org.faded.worldvoice.Worldvoice;
 
-/**
- * Network packet handler for WorldVoice quest system
- */
+
 public class WorldVoicePacketHandler {
     private static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
@@ -24,7 +22,6 @@ public class WorldVoicePacketHandler {
     }
 
     public static void register() {
-        // Server -> Client packets
         INSTANCE.registerMessage(
                 id(),
                 QuestSyncPacket.class,
@@ -41,7 +38,6 @@ public class WorldVoicePacketHandler {
                 QuestProgressUpdatePacket::handle
         );
 
-        // Client -> Server packets
         INSTANCE.registerMessage(
                 id(),
                 QuestActionPacket.class,

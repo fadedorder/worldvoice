@@ -1,5 +1,5 @@
 {
-  // Minimal fallback entries for the mob dictionary.
+
   mobs: [
     {
       id: "minecraft:zombie",

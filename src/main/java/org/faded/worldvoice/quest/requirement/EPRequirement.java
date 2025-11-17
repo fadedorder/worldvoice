@@ -6,9 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.faded.worldvoice.integration.TensuraBridge;
 import org.faded.worldvoice.quest.QuestDisplayUtil;
 
-/**
- * Requirement: Player must have at least X EP
- */
+
 public class EPRequirement implements QuestRequirement {
     private final double requiredEP;
     private final String displayText;

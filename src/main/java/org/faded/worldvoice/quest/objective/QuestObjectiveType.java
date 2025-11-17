@@ -13,7 +13,7 @@ import java.util.Map;
 public class QuestObjectiveType<T extends QuestObjective> {
     private static final Map<ResourceLocation, QuestObjectiveType<?>> REGISTRY = new HashMap<>();
 
-    // Built-in objective types
+
     public static final QuestObjectiveType<KillMobObjective> KILL_MOB =
             register("kill_mob", KillMobObjective::fromJson, KillMobObjective::fromNetwork);
 
@@ -76,7 +76,7 @@ public class QuestObjectiveType<T extends QuestObjective> {
     }
 
     public static void init() {
-        // Initialize static fields
+
     }
 
     @FunctionalInterface

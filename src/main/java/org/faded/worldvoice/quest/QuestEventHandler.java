@@ -9,15 +9,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.faded.worldvoice.Worldvoice;
 
-/**
- * Event handler for quest progression
- */
+
 @Mod.EventBusSubscriber(modid = Worldvoice.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class QuestEventHandler {
 
-    /**
-     * Handle mob kills for quest objectives
-     */
     @SubscribeEvent
     public static void onMobKill(LivingDeathEvent event) {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) {
@@ -32,9 +27,6 @@ public class QuestEventHandler {
         }
     }
 
-    /**
-     * Handle item pickups for quest objectives
-     */
     @SubscribeEvent
     public static void onItemPickup(PlayerEvent.ItemPickupEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
@@ -47,19 +39,13 @@ public class QuestEventHandler {
         }
     }
 
-    /**
-     * Sync quests when player joins
-     */
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            // Initialize quest refresh scheduler for this player
             QuestRefreshScheduler.initializePlayer(player.getUUID());
 
-            // Assign available quests to player
             QuestLoader.assignQuestsToPlayer(player);
 
-            // Sync quests after a short delay to ensure client is ready
             player.getServer().tell(new net.minecraft.server.TickTask(
                     player.getServer().getTickCount() + 20,
                     () -> ServerQuestManager.syncQuests(player)
@@ -67,14 +53,10 @@ public class QuestEventHandler {
         }
     }
 
-    /**
-     * Clear quests when player leaves (optional - depends on if you want to persist)
-     */
     @SubscribeEvent
     public static void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            // Optionally save quest data here
-            // ServerQuestManager.savePlayerQuests(player.getUUID());
+
         }
     }
 }

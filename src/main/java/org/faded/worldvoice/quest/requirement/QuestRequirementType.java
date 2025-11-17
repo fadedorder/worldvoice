@@ -15,23 +15,23 @@ public class QuestRequirementType {
     private static final Map<String, Function<FriendlyByteBuf, QuestRequirement>> NETWORK_DESERIALIZERS = new HashMap<>();
 
     public static void init() {
-        // Register EP requirement
+
         JSON_DESERIALIZERS.put("ep", EPRequirement::fromJson);
         NETWORK_DESERIALIZERS.put("ep", EPRequirement::fromNetwork);
 
-        // Register race requirement
+
         JSON_DESERIALIZERS.put("race", RaceRequirement::fromJson);
         NETWORK_DESERIALIZERS.put("race", RaceRequirement::fromNetwork);
 
-        // Register skill requirement
+
         JSON_DESERIALIZERS.put("skill", SkillRequirement::fromJson);
         NETWORK_DESERIALIZERS.put("skill", SkillRequirement::fromNetwork);
 
-        // Register awakening requirement
+
         JSON_DESERIALIZERS.put("awakening", AwakeningRequirement::fromJson);
         NETWORK_DESERIALIZERS.put("awakening", AwakeningRequirement::fromNetwork);
 
-        // Register completed quest requirement
+
         JSON_DESERIALIZERS.put("quest_completed", CompletedQuestRequirement::fromJson);
         NETWORK_DESERIALIZERS.put("quest_completed", CompletedQuestRequirement::fromNetwork);
     }

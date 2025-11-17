@@ -50,18 +50,18 @@ public abstract class EntitySkillCapabilityStorageMixin {
         SlotLedger.SkillState state = ledger.getOrCreateSkill(cat, id);
         state.capacity = SkillConfigManager.INSTANCE.getCapacity(cat, id);
 
-        // Global learning blacklist check (with per-player bypass)
+
         SlotLedger.PlayerRecord record0 = ledger.getOrCreatePlayer(serverPlayer.getUUID(), serverPlayer.getGameProfile().getName());
         if (SkillConfigManager.INSTANCE.isLearningBlacklisted(cat, id) && !record0.hasBlacklistBypass(cat, id)) {
-            // hard deny without recording TTL, this is persistent until config change
+
             cir.setReturnValue(false);
             return;
         }
 
-        // fast-path: if player already recorded holder, allow
+
         if (state.holders.contains(serverPlayer.getUUID())) return;
 
-        // bypass allows learning even when capacity full
+
         SlotLedger.PlayerRecord record = record0;
         boolean bypass = record != null && record.hasBypass(cat, id);
 
@@ -130,7 +130,7 @@ public abstract class EntitySkillCapabilityStorageMixin {
             state.epoch++;
             ledger.setDirty();
         }
-        // clear any previous denial entry for this player/skill
+
         UltBlacklistService.get().clear(serverPlayer.getUUID(), id);
     }
 }

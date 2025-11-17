@@ -7,9 +7,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.faded.worldvoice.integration.TensuraBridge;
 import org.faded.worldvoice.quest.QuestDisplayUtil;
 
-/**
- * Requirement: Player must be a specific race
- */
+
 public class RaceRequirement implements QuestRequirement {
     private final ResourceLocation raceId;
     private final String displayText;

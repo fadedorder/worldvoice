@@ -9,10 +9,6 @@ import net.minecraft.world.level.saveddata.SavedData;
 
 import java.util.*;
 
-/**
- * SavedData for WorldVoice unique/ultimate slot ledger.
- * Minimal, focused on core fields used by services and commands.
- */
 public class SlotLedger extends SavedData {
     public static final String STORAGE_KEY = "worldvoice_slots";
 
@@ -20,10 +16,8 @@ public class SlotLedger extends SavedData {
 
     public final Settings settings = new Settings();
 
-    // category -> skillId -> state
     public final EnumMap<SkillCategory, Map<ResourceLocation, SkillState>> categories = new EnumMap<>(SkillCategory.class);
 
-    // players -> record
     public final Map<UUID, PlayerRecord> players = new HashMap<>();
 
     public SlotLedger() {
@@ -44,7 +38,6 @@ public class SlotLedger extends SavedData {
         if (tag.contains("settings", Tag.TAG_COMPOUND)) {
             l.settings.fromNbt(tag.getCompound("settings"));
         }
-        // categories
         CompoundTag cats = tag.getCompound("categories");
         for (SkillCategory cat : SkillCategory.values()) {
             if (cats.contains(cat.name(), Tag.TAG_LIST)) {
@@ -58,7 +51,6 @@ public class SlotLedger extends SavedData {
                 }
             }
         }
-        // players
         if (tag.contains("players", Tag.TAG_LIST)) {
             ListTag list = tag.getList("players", Tag.TAG_COMPOUND);
             for (Tag t : list) {
@@ -133,7 +125,7 @@ public class SlotLedger extends SavedData {
         public boolean bypassAll = false;
         public final EnumSet<SkillCategory> bypassCategories = EnumSet.noneOf(SkillCategory.class);
         public final LinkedHashSet<ResourceLocation> bypassSkills = new LinkedHashSet<>();
-        // Whitelist to bypass blacklists when learning
+
         public boolean blacklistBypassAll = false;
         public final EnumSet<SkillCategory> blacklistBypassCategories = EnumSet.noneOf(SkillCategory.class);
         public final LinkedHashSet<ResourceLocation> blacklistBypassSkills = new LinkedHashSet<>();
@@ -144,7 +136,7 @@ public class SlotLedger extends SavedData {
             t.putLong("lastSeenMs", lastSeenMs);
             t.putBoolean("refreshExempt", refreshExempt);
             t.putBoolean("bypassAll", bypassAll);
-            t.putBoolean("bypassSlots", bypassAll); // legacy key for compatibility
+            t.putBoolean("bypassSlots", bypassAll);
             t.putBoolean("blacklistBypassAll", blacklistBypassAll);
             ListTag categoriesTag = new ListTag();
             for (SkillCategory cat : bypassCategories) {
@@ -280,7 +272,7 @@ public class SlotLedger extends SavedData {
         public int capacity = 1;
         public final LinkedHashSet<UUID> holders = new LinkedHashSet<>();
         public final LinkedList<UUID> waitlist = new LinkedList<>();
-        public int epoch = 0; // bump on capacity/holder changes to invalidate blacklists
+        public int epoch = 0;
 
         public CompoundTag toNbt() {
             CompoundTag t = new CompoundTag();

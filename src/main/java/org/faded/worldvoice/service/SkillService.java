@@ -53,7 +53,7 @@ public class SkillService {
                     return false;
                 }
             }
-        } // else: ledger-only assignment
+        }
 
         boolean added = false;
         if (!alreadyHolder) {

@@ -21,11 +21,11 @@ public class SkillConfigManager {
     private final Map<ResourceLocation, Integer> uniqueSlots = new LinkedHashMap<>();
     private final Map<ResourceLocation, Integer> ultimateSlots = new LinkedHashMap<>();
     private final Map<ResourceLocation, Integer> manualSlots = new LinkedHashMap<>();
-    // Learning blacklist
+
     private boolean blUniqueAll = false;
     private boolean blUltimateAll = false;
     private final java.util.LinkedHashSet<ResourceLocation> blSkills = new java.util.LinkedHashSet<>();
-    // Plunder restrictions
+
     private boolean plUniqueAll = false;
     private boolean plUltimateAll = false;
     private final java.util.LinkedHashSet<ResourceLocation> plSkills = new java.util.LinkedHashSet<>();
@@ -45,10 +45,8 @@ public class SkillConfigManager {
             autoAddDiscoveredSkills();
         }
 
-        // Write back the discovered/merged sets to config lists for visibility and persistence
         syncConfigLists();
 
-        // Blacklist and plunder settings
         blUniqueAll = WVServerConfig.BL_UNIQUE_ALL.get();
         blUltimateAll = WVServerConfig.BL_ULTIMATE_ALL.get();
         blSkills.clear();
@@ -242,7 +240,6 @@ public class SkillConfigManager {
         } else {
             manualSlots.put(id, capacity);
         }
-        // Reflect change in config lists
         syncConfigLists();
         return cat;
     }

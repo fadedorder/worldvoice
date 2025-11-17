@@ -9,9 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-/**
- * Executes typed wish actions in a guarded fashion.
- */
 public class WishActionExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(WishActionExecutor.class);
 

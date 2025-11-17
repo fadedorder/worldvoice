@@ -16,10 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Advanced quest data structure compatible with tensurajs-style quests
- * Supports modular objectives and rewards
- */
+
 public class AdvancedQuestData {
     private final UUID questId;
     private final String title;
@@ -32,7 +29,7 @@ public class AdvancedQuestData {
     private boolean tracked;
     private long completedTimestamp;
     private long lastResetTimestamp;
-    private boolean autoAppear; // If true, quest appears automatically when requirements are met
+    private boolean autoAppear;
 
     public AdvancedQuestData(UUID questId, String title, String description, QuestTab category,
                             QuestStatus status, List<QuestObjective> objectives,
@@ -51,14 +48,12 @@ public class AdvancedQuestData {
         this.autoAppear = autoAppear;
     }
 
-    // Legacy constructor for backwards compatibility
     public AdvancedQuestData(UUID questId, String title, String description, QuestTab category,
                             QuestStatus status, List<QuestObjective> objectives,
                             List<QuestReward> rewards) {
         this(questId, title, description, category, status, objectives, rewards, new ArrayList<>(), true);
     }
 
-    // Getters
     public UUID getQuestId() {
         return questId;
     }
@@ -131,7 +126,6 @@ public class AdvancedQuestData {
         this.lastResetTimestamp = timestamp;
     }
 
-    // Quest state checks
     public boolean canStart() {
         return status == QuestStatus.AVAILABLE;
     }
@@ -148,23 +142,14 @@ public class AdvancedQuestData {
         return status == QuestStatus.COMPLETED;
     }
 
-    /**
-     * Check if all requirements are met by the player
-     */
     public boolean areRequirementsMet(net.minecraft.server.level.ServerPlayer player) {
         return requirements.stream().allMatch(req -> req.meetsRequirement(player));
     }
 
-    /**
-     * Check if all objectives are completed
-     */
     public boolean areObjectivesCompleted() {
         return objectives.stream().allMatch(QuestObjective::isCompleted);
     }
 
-    /**
-     * Get overall progress (0.0 to 1.0)
-     */
     public float getOverallProgress() {
         if (objectives.isEmpty()) return 0.0f;
         float totalProgress = 0.0f;
@@ -174,7 +159,6 @@ public class AdvancedQuestData {
         return totalProgress / objectives.size();
     }
 
-    // Serialization
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
         json.addProperty("quest_id", questId.toString());
@@ -187,21 +171,18 @@ public class AdvancedQuestData {
         json.addProperty("last_reset_timestamp", lastResetTimestamp);
         json.addProperty("auto_appear", autoAppear);
 
-        // Serialize objectives
         JsonArray objectivesArray = new JsonArray();
         for (QuestObjective objective : objectives) {
             objectivesArray.add(objective.toJson());
         }
         json.add("objectives", objectivesArray);
 
-        // Serialize rewards
         JsonArray rewardsArray = new JsonArray();
         for (QuestReward reward : rewards) {
             rewardsArray.add(reward.toJson());
         }
         json.add("rewards", rewardsArray);
 
-        // Serialize requirements
         JsonArray requirementsArray = new JsonArray();
         for (QuestRequirement requirement : requirements) {
             requirementsArray.add(requirement.toJson());
@@ -221,14 +202,12 @@ public class AdvancedQuestData {
         buf.writeLong(completedTimestamp);
         buf.writeLong(lastResetTimestamp);
 
-        // Write objectives
         buf.writeInt(objectives.size());
         for (QuestObjective objective : objectives) {
             buf.writeResourceLocation(objective.getType().getId());
             objective.toNetwork(buf);
         }
 
-        // Write rewards
         buf.writeInt(rewards.size());
         for (QuestReward reward : rewards) {
             buf.writeResourceLocation(reward.getType().getId());
@@ -237,22 +216,18 @@ public class AdvancedQuestData {
 
         buf.writeBoolean(autoAppear);
 
-        // Write requirements
         buf.writeInt(requirements.size());
         for (QuestRequirement requirement : requirements) {
             QuestRequirementType.toNetwork(requirement, buf);
         }
     }
 
-    // Deserialization
     public static AdvancedQuestData fromJson(JsonObject json) {
-        // Support both UUID strings and namespaced string IDs
         UUID questId;
         String questIdStr = json.get("quest_id").getAsString();
         try {
             questId = UUID.fromString(questIdStr);
         } catch (IllegalArgumentException e) {
-            // Not a UUID, generate deterministic UUID from string
             questId = UUID.nameUUIDFromBytes(questIdStr.getBytes());
         }
 
@@ -263,9 +238,8 @@ public class AdvancedQuestData {
         boolean tracked = json.has("tracked") && json.get("tracked").getAsBoolean();
         long completedTimestamp = json.has("completed_timestamp") ? json.get("completed_timestamp").getAsLong() : 0;
         long lastResetTimestamp = json.has("last_reset_timestamp") ? json.get("last_reset_timestamp").getAsLong() : 0;
-        boolean autoAppear = !json.has("auto_appear") || json.get("auto_appear").getAsBoolean(); // Default true
+        boolean autoAppear = !json.has("auto_appear") || json.get("auto_appear").getAsBoolean();
 
-        // Deserialize objectives
         List<QuestObjective> objectives = new ArrayList<>();
         if (json.has("objectives")) {
             JsonArray objectivesArray = json.getAsJsonArray("objectives");
@@ -279,7 +253,6 @@ public class AdvancedQuestData {
             }
         }
 
-        // Deserialize rewards
         List<QuestReward> rewards = new ArrayList<>();
         if (json.has("rewards")) {
             JsonArray rewardsArray = json.getAsJsonArray("rewards");
@@ -293,7 +266,6 @@ public class AdvancedQuestData {
             }
         }
 
-        // Deserialize requirements
         List<QuestRequirement> requirements = new ArrayList<>();
         if (json.has("requirements")) {
             JsonArray requirementsArray = json.getAsJsonArray("requirements");
@@ -302,7 +274,6 @@ public class AdvancedQuestData {
                 try {
                     requirements.add(QuestRequirementType.fromJson(reqJson));
                 } catch (Exception e) {
-                    // Skip invalid requirements
                 }
             }
         }
@@ -325,7 +296,6 @@ public class AdvancedQuestData {
         long completedTimestamp = buf.readLong();
         long lastResetTimestamp = buf.readLong();
 
-        // Read objectives
         List<QuestObjective> objectives = new ArrayList<>();
         int objectiveCount = buf.readInt();
         for (int i = 0; i < objectiveCount; i++) {
@@ -336,7 +306,6 @@ public class AdvancedQuestData {
             }
         }
 
-        // Read rewards
         List<QuestReward> rewards = new ArrayList<>();
         int rewardCount = buf.readInt();
         for (int i = 0; i < rewardCount; i++) {
@@ -349,14 +318,12 @@ public class AdvancedQuestData {
 
         boolean autoAppear = buf.readBoolean();
 
-        // Read requirements
         List<QuestRequirement> requirements = new ArrayList<>();
         int requirementCount = buf.readInt();
         for (int i = 0; i < requirementCount; i++) {
             try {
                 requirements.add(QuestRequirementType.fromNetwork(buf));
             } catch (Exception e) {
-                // Skip invalid requirements
             }
         }
 

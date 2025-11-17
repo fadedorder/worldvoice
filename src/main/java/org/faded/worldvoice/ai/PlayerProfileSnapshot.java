@@ -130,7 +130,7 @@ public record PlayerProfileSnapshot(
     }
 
     public double distanceKmPerHour() {
-        // Stats are in centimeters; convert to kilometers.
+
         double kilometers = distanceTravelled / 100000.0d;
         return safeDivide(kilometers, normalizedHours());
     }

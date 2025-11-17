@@ -27,13 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Skill dictionary: loads rich metadata for skills and exposes it to AI prompts.
- *
- * This version discards weight/hostility scoring. The AI makes choices using
- * the full context (name, id, tier, notes, tags, evolutions, etc.).
- * Heuristic fallbacks elsewhere should not depend on weights from this class.
- */
 public final class SkillDictionary {
     private static final Logger LOGGER = LoggerFactory.getLogger(SkillDictionary.class);
     private static final Gson GSON = new Gson();
@@ -131,7 +124,7 @@ public final class SkillDictionary {
             if (skillsObj.has("unique") && skillsObj.get("unique").isJsonArray()) {
                 parseArray(skillsObj.getAsJsonArray("unique"));
             }
-            // Future categories (ultimate/manual) can be added in the same way if needed.
+
         }
         lastLoadedMs = System.currentTimeMillis();
         LOGGER.info("Loaded {} Yggdrasil skill dictionary entries.", entries.size());

@@ -17,7 +17,7 @@ public class WVConfig {
     public static final ForgeConfigSpec.BooleanValue REGISTER_CREATION_AS_OWNED;
     public static final ForgeConfigSpec.BooleanValue REVOKE_SKILLS_ON_REFRESH;
 
-    // Yggdrasil (AI orchestrator)
+
     public static final ForgeConfigSpec.BooleanValue YGG_ENABLE;
     public static final ForgeConfigSpec.IntValue YGG_INTERVAL_MINUTES;
     public static final ForgeConfigSpec.IntValue YGG_MIN_PLAYERS;
@@ -40,7 +40,7 @@ public class WVConfig {
     public static final ForgeConfigSpec.BooleanValue YGG_AWAKENING_QUEUE_SUBORDINATES;
     public static final ForgeConfigSpec.DoubleValue YGG_AWAKENING_QUEUE_THRESHOLD;
 
-    // Wish handling
+
     public static final ForgeConfigSpec.BooleanValue YGG_WISH_ENABLE;
     public static final ForgeConfigSpec.IntValue YGG_WISH_COOLDOWN_MINUTES;
     public static final ForgeConfigSpec.DoubleValue YGG_WISH_STRICTNESS;
@@ -110,7 +110,7 @@ public class WVConfig {
 
         b.push("ai");
         YGG_OPENROUTER_MODEL = b.comment("OpenRouter model identifier to use when AI integration is enabled.")
-                .define("openRouterModel", "openrouter/anthropic/claude-3.5-sonnet");
+                .define("openRouterModel", "openrouter/anthropic/claude-4.5-sonnet");
         YGG_OPENROUTER_KEY = b.comment("OpenRouter API key (optional; leave blank to disable remote calls).")
                 .define("openRouterKey", "");
         YGG_OPENROUTER_MAX_TOKENS = b.comment("Maximum tokens per OpenRouter completion.")
@@ -140,7 +140,7 @@ public class WVConfig {
                 .define("private", false);
         b.pop();
 
-        b.pop(); // yggdrasil
+        b.pop();
         SPEC = b.build();
     }
 }

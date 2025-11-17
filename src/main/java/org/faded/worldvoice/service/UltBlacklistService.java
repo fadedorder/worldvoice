@@ -38,19 +38,19 @@ public final class UltBlacklistService {
         if (skills == null) return false;
         Entry e = skills.get(id);
         if (e == null) return false;
-        // Expired TTL
+
         if (nowMs >= e.untilMs) {
             skills.remove(id);
             if (skills.isEmpty()) map.remove(player);
             return false;
         }
-        // Epoch changed -> invalidate and allow re-check
+
         if (e.epoch != currentEpoch) {
             skills.remove(id);
             if (skills.isEmpty()) map.remove(player);
             return false;
         }
-        return true; // still denied within same epoch
+        return true;
     }
 
     public void recordDenied(UUID player, ResourceLocation id, int currentEpoch, long nowMs, long ttlMs) {

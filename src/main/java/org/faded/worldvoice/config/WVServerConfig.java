@@ -13,11 +13,11 @@ public class WVServerConfig {
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> UNIQUE_SLOTS;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> ULTIMATE_SLOTS;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> MANUAL_SLOTS;
-    // Blacklist (learning)
+
     public static final ForgeConfigSpec.BooleanValue BL_UNIQUE_ALL;
     public static final ForgeConfigSpec.BooleanValue BL_ULTIMATE_ALL;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> BL_SKILLS;
-    // Plunder restrictions
+
     public static final ForgeConfigSpec.BooleanValue PL_UNIQUE_ALL;
     public static final ForgeConfigSpec.BooleanValue PL_ULTIMATE_ALL;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> PL_SKILLS;

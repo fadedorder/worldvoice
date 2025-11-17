@@ -8,13 +8,11 @@ import org.faded.worldvoice.quest.ServerQuestManager;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-/**
- * Packet sent from client to server for quest actions
- */
+
 public class QuestActionPacket {
     private final UUID questId;
     private final ActionType action;
-    private final int objectiveIndex; // For submit actions
+    private final int objectiveIndex;
 
     public enum ActionType {
         START, CANCEL, TRACK, UNTRACK, SUBMIT_ITEMS, SUBMIT_EP

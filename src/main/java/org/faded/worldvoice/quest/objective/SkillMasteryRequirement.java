@@ -6,9 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.faded.worldvoice.quest.QuestDisplayUtil;
 
-/**
- * Objective requiring the player to have mastered a specific skill
- */
+
 public class SkillMasteryRequirement implements QuestObjective {
     private final ResourceLocation skillId;
     private boolean isMastered;

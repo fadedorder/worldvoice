@@ -151,15 +151,15 @@ Java.type('org.faded.worldvoice.quest.KubeJSQuestRegistry').register(quest);
 
 ### 1. Server Startup (`Worldvoice.java`)
 ```java
-// In commonSetup:
+
 event.enqueueWork(() -> {
     QuestObjectiveType.init();
     QuestRewardType.init();
-    QuestRequirementType.init();  // NEW
+    QuestRequirementType.init();
 });
 
-// In onServerStarting:
-QuestLoader.loadQuests();  // NEW
+
+QuestLoader.loadQuests();
 ```
 
 ### 2. Player Join (`QuestEventHandler.java`)
@@ -167,13 +167,13 @@ QuestLoader.loadQuests();  // NEW
 @SubscribeEvent
 public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
     if (event.getEntity() instanceof ServerPlayer player) {
-        // Initialize refresh timestamps
+
         QuestRefreshScheduler.initializePlayer(player.getUUID());
 
-        // Assign available quests
+
         QuestLoader.assignQuestsToPlayer(player);
 
-        // Sync quests to client
+
         player.getServer().tell(new TickTask(
             player.getServer().getTickCount() + 20,
             () -> ServerQuestManager.syncQuests(player)
@@ -186,9 +186,9 @@ public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
 ```java
 @SubscribeEvent
 public static void onServerTick(TickEvent.ServerTickEvent event) {
-    // Check every minute for quest resets
-    // Reset daily quests at midnight
-    // Reset weekly quests on Monday
+
+
+
 }
 ```
 

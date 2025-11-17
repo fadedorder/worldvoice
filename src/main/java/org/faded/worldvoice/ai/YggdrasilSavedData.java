@@ -10,10 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Persisted per-player metadata for the Yggdrasil automation layer.
- * Lightweight by design – queues live in memory, only durable bits live here.
- */
 public class YggdrasilSavedData extends SavedData {
     public static final String STORAGE_KEY = "worldvoice_yggdrasil";
 
@@ -86,7 +82,7 @@ public class YggdrasilSavedData extends SavedData {
         public long favorUntilMs = 0L;
         public double favorStrength = 0.0d;
         public String favorContext = "";
-        public int uniqueCapOverride = -1; // -1 means use global config
+        public int uniqueCapOverride = -1;
 
         public boolean hasFavor(long now) {
             return favorUntilMs > now;

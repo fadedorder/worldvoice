@@ -35,7 +35,7 @@ public class AwakeningRequirement implements QuestRequirement {
         return switch (awakeningType) {
             case TRUE_HERO -> TensuraBridge.isTrueHero(player);
             case TRUE_DEMON_LORD -> TensuraBridge.isTrueDemonLord(player);
-            default -> false; // TODO: Add other awakening checks when available
+            default -> false;
         };
     }
 

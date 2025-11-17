@@ -13,9 +13,7 @@ import org.faded.worldvoice.world.WorldVoiceGameRules;
 import java.util.Iterator;
 import java.util.UUID;
 
-/**
- * Periodic TTL check and cleanup. Keep this lightweight.
- */
+
 public class RefreshService {
     private long lastRunMs = 0L;
 
@@ -57,7 +55,7 @@ public class RefreshService {
         }
         ledger.setDirty();
 
-        // Cleanup expired blacklist entries
+
         UltBlacklistService.get().cleanupExpired(now);
     }
 }
