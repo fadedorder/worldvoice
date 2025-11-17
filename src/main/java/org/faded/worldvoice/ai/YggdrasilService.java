@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -100,8 +101,11 @@ public class YggdrasilService {
     public void reloadDictionary() {
         dictionaryLastAttempt = System.currentTimeMillis();
         Path configured = Path.of(WVConfig.YGG_DICTIONARY_PATH.get());
+        LOGGER.info("Loading skill dictionary from configured path: {} (absolute: {})", configured, configured.toAbsolutePath());
+        LOGGER.info("Skill dictionary file exists: {}", Files.exists(configured));
         InputStream fallback = YggdrasilService.class.getResourceAsStream("/defaultconfigs/worldvoice/yggdrasil-skills.json5");
         dictionary = SkillDictionary.load(configured, fallback);
+        LOGGER.info("Skill dictionary loaded: {} total entries", dictionary.all().size());
     }
 
     private ItemDictionary ensureItemDictionary() {
@@ -133,15 +137,21 @@ public class YggdrasilService {
     public void reloadItemDictionary() {
         itemDictionaryLastAttempt = System.currentTimeMillis();
         Path configured = Path.of(WVConfig.YGG_ITEM_DICTIONARY_PATH.get());
+        LOGGER.info("Loading item dictionary from configured path: {} (absolute: {})", configured, configured.toAbsolutePath());
+        LOGGER.info("Item dictionary file exists: {}", Files.exists(configured));
         InputStream fallback = YggdrasilService.class.getResourceAsStream("/defaultconfigs/worldvoice/yggdrasil-items.json5");
         itemDictionary = ItemDictionary.load(configured, fallback);
+        LOGGER.info("Item dictionary loaded: {} total entries", itemDictionary.all().size());
     }
 
     public void reloadMobDictionary() {
         mobDictionaryLastAttempt = System.currentTimeMillis();
         Path configured = Path.of(WVConfig.YGG_MOB_DICTIONARY_PATH.get());
+        LOGGER.info("Loading mob dictionary from configured path: {} (absolute: {})", configured, configured.toAbsolutePath());
+        LOGGER.info("Mob dictionary file exists: {}", Files.exists(configured));
         InputStream fallback = YggdrasilService.class.getResourceAsStream("/defaultconfigs/worldvoice/yggdrasil-mobs.json5");
         mobDictionary = MobDictionary.load(configured, fallback);
+        LOGGER.info("Mob dictionary loaded: {} total entries", mobDictionary.all().size());
     }
 
     public SkillDictionary dictionary() {

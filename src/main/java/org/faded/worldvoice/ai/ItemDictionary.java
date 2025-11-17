@@ -94,13 +94,20 @@ public final class ItemDictionary {
         ItemDictionary dict = new ItemDictionary();
         boolean loaded = false;
         if (customPath != null && Files.exists(customPath)) {
+            LOGGER.info("Item dictionary: Custom file found at {}, attempting to load...", customPath.toAbsolutePath());
             loaded = dict.tryLoad(customPath);
+            if (loaded) {
+                LOGGER.info("Item dictionary: Successfully loaded from custom file");
+            }
+        } else if (customPath != null) {
+            LOGGER.warn("Item dictionary: Custom file does NOT exist at {}", customPath.toAbsolutePath());
         }
         if (!loaded && fallbackStream != null) {
+            LOGGER.warn("Item dictionary: Loading from embedded fallback resource (JAR file)");
             loaded = dict.tryLoad(fallbackStream);
         }
         if (!loaded) {
-            LOGGER.warn("Falling back to embedded item dictionary; custom file missing or invalid.");
+            LOGGER.error("Item dictionary: Failed to load from both custom path and fallback! Dictionary will be empty.");
         }
         return dict;
     }

@@ -80,13 +80,20 @@ public final class SkillDictionary {
         SkillDictionary dict = new SkillDictionary();
         boolean loaded = false;
         if (customPath != null && Files.exists(customPath)) {
+            LOGGER.info("Skill dictionary: Custom file found at {}, attempting to load...", customPath.toAbsolutePath());
             loaded = dict.tryLoad(customPath);
+            if (loaded) {
+                LOGGER.info("Skill dictionary: Successfully loaded from custom file");
+            }
+        } else if (customPath != null) {
+            LOGGER.warn("Skill dictionary: Custom file does NOT exist at {}", customPath.toAbsolutePath());
         }
         if (!loaded && defaultStreamSupplier != null) {
+            LOGGER.warn("Skill dictionary: Loading from embedded fallback resource (JAR file)");
             loaded = dict.tryLoad(defaultStreamSupplier);
         }
         if (!loaded) {
-            LOGGER.warn("Falling back to built-in Yggdrasil dictionary; custom file missing or invalid.");
+            LOGGER.error("Skill dictionary: Failed to load from both custom path and fallback! Dictionary will be empty.");
         }
         return dict;
     }

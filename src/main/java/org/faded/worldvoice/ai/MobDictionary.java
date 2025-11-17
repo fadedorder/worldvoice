@@ -83,13 +83,20 @@ public final class MobDictionary {
         MobDictionary dict = new MobDictionary();
         boolean loaded = false;
         if (customPath != null && Files.exists(customPath)) {
+            LOGGER.info("Mob dictionary: Custom file found at {}, attempting to load...", customPath.toAbsolutePath());
             loaded = dict.tryLoad(customPath);
+            if (loaded) {
+                LOGGER.info("Mob dictionary: Successfully loaded from custom file");
+            }
+        } else if (customPath != null) {
+            LOGGER.warn("Mob dictionary: Custom file does NOT exist at {}", customPath.toAbsolutePath());
         }
         if (!loaded && fallbackStream != null) {
+            LOGGER.warn("Mob dictionary: Loading from embedded fallback resource (JAR file)");
             loaded = dict.tryLoad(fallbackStream);
         }
         if (!loaded) {
-            LOGGER.warn("Falling back to embedded mob dictionary; custom file missing or invalid.");
+            LOGGER.error("Mob dictionary: Failed to load from both custom path and fallback! Dictionary will be empty.");
         }
         return dict;
     }
