@@ -1,0 +1,14 @@
+{
+  // Minimal fallback entries for the mob dictionary.
+  mobs: [
+    {
+      id: "minecraft:zombie",
+      name: "Zombie",
+      mod: "minecraft",
+      category: "monster",
+      difficulty: 1.0,
+      tags: ["undead", "melee"],
+      notes: "Baseline hostile mob entry."
+    }
+  ]
+}
