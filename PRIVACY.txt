@@ -1,0 +1,30 @@
+Privacy checks for WorldVoice
+
+Before making commits in a new clone:
+1. Install Python 3 and Gitleaks (https://github.com/gitleaks/gitleaks).
+2. Run: git config --local core.hooksPath .githooks
+3. Set your Git name to the public alias you want to use.
+4. Set your Git email to the noreply address shown in GitHub Settings > Emails.
+   For the repository owner, the prepared cleanup uses: 227655346+fadedorder@users.noreply.github.com
+5. Enable GitHub email privacy and blocking of pushes that expose your email.
+6. Run: python scripts/check_privacy.py
+
+The pre-commit hook checks the prospective author/committer email and the entire
+staged snapshot, then runs Gitleaks against staged changes. Missing Gitleaks
+blocks commits. Checks print locations and categories, not sensitive values.
+They reject tracked personal IDE settings, build logs, common credential files,
+non-noreply email literals, and home-directory paths, including UTF-16 text.
+Example-domain email addresses and noreply service identities are allowed.
+
+Git hooks are local configuration: each clone needs the setup above. They can
+be bypassed, and these checks are not a guarantee that every secret is detected.
+The GitHub workflow checks fetched history after a push or pull request; it
+cannot prevent initial publication. Enable GitHub push protection when available
+and require the privacy job for ordinary pull requests after the cleanup.
+
+Use environment variables or ignored runtime configuration for real credentials.
+Keep sanitized example files when needed. Do not put private values into commit
+messages. Ignore rules do not remove files that are already tracked.
+
+After a privacy history rewrite, fresh clones are preferred. Merging an old
+clone's branches can reintroduce removed history. Keep any old backup private.
