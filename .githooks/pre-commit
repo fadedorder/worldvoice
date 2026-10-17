@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+if command -v python3 >/dev/null 2>&1 && python3 --version >/dev/null 2>&1; then
+    python3 scripts/check_privacy.py --staged
+else
+    python scripts/check_privacy.py --staged
+fi
+local_scanner="$(git rev-parse --git-path privacy-tools/gitleaks.exe)"
+if [ -x "$local_scanner" ]; then
+    "$local_scanner" git --pre-commit --staged --redact=100 --no-banner
+elif command -v gitleaks >/dev/null 2>&1; then
+    gitleaks git --pre-commit --staged --redact=100 --no-banner
+else
+    echo "Commit blocked: install Gitleaks to enable the secret check." >&2
+    exit 1
+fi
