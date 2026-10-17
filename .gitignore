@@ -2,3 +2,18 @@
 /.gradle/
 /build/
 /build/classes/java/main/
+
+# Machine-specific development settings
+/.idea/
+/.claude/settings.local.json
+# Logs and private runtime configuration
+*.log
+.env
+.env.*
+!.env.example
+!.env.sample
+credentials.json
+id_rsa
+id_ed25519
+__pycache__/
+*.pyc
